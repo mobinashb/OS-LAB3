@@ -142,7 +142,6 @@ sys_setQueue (void)
   argint(0, &priority);
   argint(1, &pid);
   changeQueue(priority, pid);
-  find_and_set_lottery_ticket((uint)lottery_ticket , pid);
 }
 
 void 

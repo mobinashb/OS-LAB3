@@ -592,12 +592,9 @@ scheduler(void)
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
 
-    if (p == 0)
     p = lotteryScheduler();
-
     if (p == 0)
       p = HRRNScheduler();
-
     if (p == 0)
       p = SRPFScheduler();  
     
