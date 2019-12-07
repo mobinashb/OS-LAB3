@@ -2,7 +2,6 @@
 #include "user.h" // for using from strlen
 
 
-
 void lotteryScheduling() {
     int pid = getpid();
     if (pid > 0) {
@@ -20,7 +19,7 @@ void lotteryScheduling() {
         int mypid = getpid();
         inittickets(12, mypid);
         sleepsec(2);
-        printf(1, "pid %d exited\n", getpid());
+        printf(1, "pid %d exited ** ", getpid());
         exit();
     }
 
@@ -37,6 +36,7 @@ void lotteryScheduling() {
                 wait();
                 wait();
                 wait();
+                printf(1, "pid %d exited ** ", getpid());
                 printf(1, "pid %d exited\n", getpid());
                 exit();
             }
@@ -44,7 +44,7 @@ void lotteryScheduling() {
                 int mypid = getpid();
                 inittickets(10000, mypid);
                 sleepsec(2);
-                printf(1, "pid %d exited\n", getpid());
+                printf(1, "pid %d exited ** ", getpid());
                 exit();
             }
             
@@ -53,7 +53,7 @@ void lotteryScheduling() {
             int mypid = getpid();
             inittickets(100, mypid);
             sleepsec(2);
-            printf(1, "pid %d exited\n", getpid());
+            printf(1, "pid %d exited ** ", getpid());
             exit();
         }
     }

@@ -88,6 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->queue = 1;
   
 
   uint xticks;
@@ -219,6 +220,7 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
+  np->queue = 2;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -390,6 +392,9 @@ printProcesses()
   for(i = 0 ; i < 3; i++)
     cprintf(" ");
   cprintf("tickets");
+  for(i = 0 ; i < 3; i++)
+    cprintf(" ");
+  cprintf("queue");
   cprintf("\n____________________________________________________ \n");
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid == 0)
@@ -412,6 +417,9 @@ printProcesses()
       cprintf(" ");
     cprintf("%d  ", p->tickets);
     for(i = 0 ; i < 8 - intSize(p->tickets); i++)
+      cprintf(" ");
+    cprintf("%d  ", p->queue);
+    for(i = 0 ; i < 8 - intSize(p->queue); i++)
       cprintf(" ");
     cprintf("\n");
   }
@@ -467,6 +475,20 @@ void find_and_set_SRPF_priority(int priority, int pid)
 //  - eventually that process transfers control
 //      via swtch back to the scheduler.
 
+void
+changeQueue(int priority, int pid)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(pid == p->pid ) {
+        p->queue = priority;
+        break;
+    }
+  }
+  release(&ptable.lock);
+}
+
 struct proc*
 HRRNScheduler(void)
 {
@@ -475,7 +497,7 @@ HRRNScheduler(void)
   float maxHRRN = 0;
   
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state == RUNNABLE && p != 0) {
+      if(p->state == RUNNABLE && p->queue == 2) {
           if(highestHRRN == 0)
             highestHRRN = p;
           else {
