@@ -29,6 +29,7 @@ int gettime(void);
 int intSize(int i);
 int printprocs(void);
 int inittickets(int num, int pid);
+int setQueue(int num, int pid);
 
 // ulib.c
 int stat(const char*, struct stat*);

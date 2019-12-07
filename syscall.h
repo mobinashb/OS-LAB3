@@ -24,3 +24,4 @@
 #define SYS_gettime 23
 #define SYS_printprocs 24
 #define SYS_inittickets 25
+#define SYS_setQueue 26

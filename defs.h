@@ -189,6 +189,7 @@ void            clearpteu(pde_t *pgdir, char *uva);
 int             intSize(int i);
 void            printProcesses(void);
 void            find_and_set_lottery_ticket(uint num, int pid);
+void            changeQueue(int pid, int priority);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

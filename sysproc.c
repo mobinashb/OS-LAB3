@@ -129,9 +129,17 @@ sys_printprocs(void)
 void
 sys_inittickets(void)
 {
-  int lottery_ticket;
-  argint(0, &lottery_ticket);
-  int pid;
+  int pid, tickets;
+  argint(0, &tickets);
   argint(1, &pid);
-  find_and_set_lottery_ticket((uint)lottery_ticket , pid);
+  find_and_set_lottery_ticket((uint)tickets , pid);
+}
+
+void
+sys_setQueue (void)
+{
+  int pid, priority;
+  argint(0, &priority);
+  argint(1, &pid);
+  changeQueue(priority, pid);
 }

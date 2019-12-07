@@ -34,3 +34,4 @@ SYSCALL(gettime)
 
 SYSCALL(printprocs)
 SYSCALL(inittickets)
+SYSCALL(setQueue)
