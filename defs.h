@@ -121,6 +121,12 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 
+int             intSize(int i);
+void            printProcesses(void);
+void            find_and_set_lottery_ticket(uint num, int pid);
+void            find_and_set_SRPF_priority(int priority, int pid);
+
+
 // swtch.S
 void            swtch(struct context**, struct context*);
 
@@ -185,10 +191,6 @@ void            switchuvm(struct proc*);
 void            switchkvm(void);
 int             copyout(pde_t*, uint, void*, uint);
 void            clearpteu(pde_t *pgdir, char *uva);
-
-int             intSize(int i);
-void            printProcesses(void);
-void            find_and_set_lottery_ticket(uint num, int pid);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

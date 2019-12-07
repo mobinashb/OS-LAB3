@@ -29,8 +29,9 @@ SYSCALL(getpid)
 SYSCALL(sbrk)
 SYSCALL(sleep)
 SYSCALL(uptime)
+# sched
 SYSCALL(sleepsec)
 SYSCALL(gettime)
-
 SYSCALL(printprocs)
 SYSCALL(inittickets)
+SYSCALL(set_priority)
