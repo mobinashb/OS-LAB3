@@ -50,10 +50,10 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
 
-  uint arrivalTime;
-  uint execCycles;
-
-  uint tickets;
+  uint tickets;                //Lottery sched
+  uint arrivalTime;            //HRRN sched 
+  uint execCycles;             //HRRN sched
+  float priority;              //SRPF sched
 };
 
 // Process memory is laid out contiguously, low addresses first:

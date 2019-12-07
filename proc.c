@@ -162,8 +162,13 @@ userinit(void)
   xticks = ticks;
   release(&tickslock);
   p->state = RUNNABLE;
+
+  //HRRN
   p->arrivalTime = xticks;
   p->execCycles = 1;
+
+  //SRPF
+  p->priority = 0;
 
   release(&ptable.lock);
 }
@@ -441,6 +446,18 @@ void find_and_set_lottery_ticket(uint lotteryTickets, int pid){
   }
 }
 
+void find_and_set_SRPF_priority(int priority, int pid)
+{
+  struct proc *p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(pid == p->pid)
+    {
+      p->priority = priority;
+      break;
+    }
+  }
+}
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -506,6 +523,39 @@ lotteryScheduler(void)
 
 }
 
+struct proc*
+SRPFScheduler(void)
+{
+  uint t = ticks;
+  struct proc *p; 
+  int priorityProcessSelected = 0;
+  struct proc *highPriority = 0;
+  
+  priorityProcessSelected = 0;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state != RUNNABLE) //TODO: Add p->queue != 3
+      continue;
+
+    if(!priorityProcessSelected)
+    {
+      highPriority = p;
+      priorityProcessSelected = 1;
+    }
+    if(highPriority->priority > p->priority )
+      highPriority = p;
+    else if (highPriority->priority == p->priority)
+    {
+      if (t % 2 == 0)
+        highPriority = p;
+    }
+  }
+  if(priorityProcessSelected )
+  {
+    return highPriority;
+  }
+  return 0;
+}
+
 void
 scheduler(void)
 {
@@ -521,24 +571,28 @@ scheduler(void)
     acquire(&ptable.lock);
     // 
     // if (p == 0)
-    p = lotteryScheduler();
+    // p = lotteryScheduler();
 
-    if (p == 0)
-      p = HRRNScheduler();  
+    // if (p == 0)
+      // p = HRRNScheduler();
+
+    // if (p == 0)
+      p = SRPFScheduler();  
     
-    // for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    //   if(p->state != RUNNABLE)
-    //     continue;
-
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      if (p != 0) {
+    // Switch to chosen process.  It is the process's job
+    // to release ptable.lock and then reacquire it
+    // before jumping back to us.
+    if (p != 0) {
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
 
+      //HRRN
       p->execCycles++;
+
+      //SRPF
+      if (p->priority > 0)
+        p->priority -= 0.1;
 
       swtch(&(c->scheduler), p->context);
       switchkvm();
@@ -548,7 +602,6 @@ scheduler(void)
       c->proc = 0;
     }
     release(&ptable.lock);
-
   }
 }
 
