@@ -6,7 +6,6 @@
 void lotteryScheduling() {
     int pid = getpid();
     if (pid > 0) {
-        // sleepsec(3);
         pid = fork();
         
     }
@@ -19,7 +18,7 @@ void lotteryScheduling() {
     else if (pid == 0)
     {
         int mypid = getpid();
-        inittickets(12187, mypid);
+        inittickets(12, mypid);
         sleepsec(2);
         printf(1, "pid %d exited\n", getpid());
         exit();
@@ -27,7 +26,6 @@ void lotteryScheduling() {
 
     else
     {
-        // sleepsec(1);
         pid = fork();
         if (pid > 0) {
             pid = fork();
@@ -44,7 +42,7 @@ void lotteryScheduling() {
             }
             else {
                 int mypid = getpid();
-                inittickets(108, mypid);
+                inittickets(10000, mypid);
                 sleepsec(2);
                 printf(1, "pid %d exited\n", getpid());
                 exit();
