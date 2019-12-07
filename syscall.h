@@ -26,3 +26,4 @@
 #define SYS_printprocs 24
 #define SYS_inittickets 25
 #define SYS_set_priority 26
+#define SYS_setQueue 27

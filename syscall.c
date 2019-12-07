@@ -108,7 +108,7 @@ extern int sys_sleepsec(void);
 extern int sys_gettime(void);
 extern int sys_printprocs(void);
 extern int sys_inittickets(void);
-extern int sys_set_priority(void);
+extern int sys_setQueue(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -137,7 +137,7 @@ static int (*syscalls[])(void) = {
 [SYS_gettime] sys_gettime,
 [SYS_printprocs] sys_printprocs,
 [SYS_inittickets] sys_inittickets,
-[SYS_set_priority] sys_set_priority,
+[SYS_setQueue] sys_setQueue,
 };
 
 void

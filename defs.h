@@ -125,6 +125,7 @@ int             intSize(int i);
 void            printProcesses(void);
 void            find_and_set_lottery_ticket(uint num, int pid);
 void            find_and_set_SRPF_priority(int priority, int pid);
+void            changeQueue(int pid, int priority);
 
 
 // swtch.S

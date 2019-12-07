@@ -88,6 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->queue = 1;
   
 
   uint xticks;
@@ -219,6 +220,7 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
+  np->queue = 2;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -390,7 +392,13 @@ printProcesses()
   for(i = 0 ; i < 3; i++)
     cprintf(" ");
   cprintf("tickets");
-  cprintf("\n____________________________________________________ \n");
+  for(i = 0 ; i < 3; i++)
+    cprintf(" ");
+  cprintf("queue");
+  for(i = 0 ; i < 3; i++)
+    cprintf(" ");
+  cprintf("priority");
+  cprintf("\n_________________________________________________________________________________ \n");
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid == 0)
       continue;
@@ -412,6 +420,12 @@ printProcesses()
       cprintf(" ");
     cprintf("%d  ", p->tickets);
     for(i = 0 ; i < 8 - intSize(p->tickets); i++)
+      cprintf(" ");
+    cprintf("%d  ", p->queue);
+    for(i = 0 ; i < 8 - intSize(p->queue); i++)
+      cprintf(" ");
+    cprintf("%d  ", p->priority);
+    for(i = 0 ; i < 8 - intSize(p->priority); i++)
       cprintf(" ");
     cprintf("\n");
   }
@@ -467,6 +481,20 @@ void find_and_set_SRPF_priority(int priority, int pid)
 //  - eventually that process transfers control
 //      via swtch back to the scheduler.
 
+void
+changeQueue(int priority, int pid)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(pid == p->pid ) {
+        p->queue = priority;
+        break;
+    }
+  }
+  release(&ptable.lock);
+}
+
 struct proc*
 HRRNScheduler(void)
 {
@@ -475,7 +503,7 @@ HRRNScheduler(void)
   float maxHRRN = 0;
   
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state == RUNNABLE && p != 0) {
+      if(p->state == RUNNABLE && p->queue == 2) {
           if(highestHRRN == 0)
             highestHRRN = p;
           else {
@@ -569,14 +597,11 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    // 
-    // if (p == 0)
-    // p = lotteryScheduler();
 
-    // if (p == 0)
-      // p = HRRNScheduler();
-
-    // if (p == 0)
+    p = lotteryScheduler();
+    if (p == 0)
+      p = HRRNScheduler();
+    if (p == 0)
       p = SRPFScheduler();  
     
     // Switch to chosen process.  It is the process's job
