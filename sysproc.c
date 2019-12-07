@@ -142,4 +142,15 @@ sys_setQueue (void)
   argint(0, &priority);
   argint(1, &pid);
   changeQueue(priority, pid);
+  find_and_set_lottery_ticket((uint)lottery_ticket , pid);
+}
+
+void 
+sys_set_priority()
+{
+  int priority;
+  argint(0, &priority);
+  int pid;
+  argint(1, &pid);
+  find_and_set_SRPF_priority(priority, pid);
 }
