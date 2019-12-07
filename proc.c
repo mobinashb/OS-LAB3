@@ -395,7 +395,10 @@ printProcesses()
   for(i = 0 ; i < 3; i++)
     cprintf(" ");
   cprintf("queue");
-  cprintf("\n____________________________________________________ \n");
+  for(i = 0 ; i < 3; i++)
+    cprintf(" ");
+  cprintf("priority");
+  cprintf("\n_________________________________________________________________________________ \n");
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid == 0)
       continue;
@@ -420,6 +423,9 @@ printProcesses()
       cprintf(" ");
     cprintf("%d  ", p->queue);
     for(i = 0 ; i < 8 - intSize(p->queue); i++)
+      cprintf(" ");
+    cprintf("%d  ", p->priority);
+    for(i = 0 ; i < 8 - intSize(p->priority); i++)
       cprintf(" ");
     cprintf("\n");
   }
