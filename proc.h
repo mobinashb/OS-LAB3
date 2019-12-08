@@ -55,6 +55,7 @@ struct proc {
 
   uint tickets;
   int queue;
+  float priority;
 };
 
 // Process memory is laid out contiguously, low addresses first:

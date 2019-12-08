@@ -165,6 +165,7 @@ userinit(void)
   p->state = RUNNABLE;
   p->arrivalTime = xticks;
   p->execCycles = 1;
+  p->priority = 0.0;
 
   release(&ptable.lock);
 }
@@ -215,7 +216,8 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
-  np->queue = 2;
+  np->queue = 1;
+  np->tickets = 10;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -329,16 +331,25 @@ wait(void)
 }
 
 int intSize(int i){
-    if( i >= 1000000000) return 10;
-    if( i >= 100000000)  return 9;
-    if( i >= 10000000)   return 8;
-    if( i >= 1000000)    return 7;
-    if( i >= 100000)     return 6;
-    if( i >= 10000)      return 5;
-    if( i >= 1000)       return 4;
-    if( i >= 100)        return 3;
-    if( i >= 10)         return 2;
-                        return 1;
+    if (i >= 1000000000)
+      return 10;
+    if (i >= 100000000)
+      return 9;
+    if (i >= 10000000)
+      return 8;
+    if (i >= 1000000)
+      return 7;
+    if (i >= 100000)
+      return 6;
+    if (i >= 10000)
+      return 5;
+    if (i >= 1000)
+      return 4;
+    if (i >= 100)
+      return 3;
+    if (i >= 10)
+      return 2;
+    return 1;
 }
 
 char* print_state(int state){
@@ -370,7 +381,6 @@ printProcesses()
     if(p->pid != 0 && siz < strlen(p->name))
       siz = strlen(p->name);
   }
-
   cprintf("name");
   for(i = 0 ; i < siz - strlen("name") + 3 ; i++)
     cprintf(" ");
@@ -390,7 +400,10 @@ printProcesses()
   for(i = 0 ; i < 3; i++)
     cprintf(" ");
   cprintf("queue");
-  cprintf("\n____________________________________________________ \n");
+  for(i = 0 ; i < 3; i++)
+    cprintf(" ");
+  cprintf("priority");
+  cprintf("\n________________________________________________________________________________ \n");
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid == 0)
       continue;
@@ -408,14 +421,18 @@ printProcesses()
     for(i = 0 ; i < 11 - intSize(p->execCycles); i++)
       cprintf(" ");
     cprintf("%d  ", p->arrivalTime);
-    for(i = 0 ; i < 8 - intSize(p->arrivalTime); i++)
+    for(i = 0 ; i <  12 - intSize(p->arrivalTime); i++)
       cprintf(" ");
     cprintf("%d  ", p->tickets);
     for(i = 0 ; i < 8 - intSize(p->tickets); i++)
       cprintf(" ");
     cprintf("%d  ", p->queue);
-    for(i = 0 ; i < 8 - intSize(p->queue); i++)
+    for(i = 0 ; i < 6 - intSize(p->queue); i++)
       cprintf(" ");
+    if(p->priority - (int)(p->priority) > 0.001)
+      cprintf("%d", (int)(p->priority) + 1);
+    else if(p->priority - (int)(p->priority) < 0.001)
+      cprintf("%d", (int)(p->priority));
     cprintf("\n");
   }
 }
@@ -425,7 +442,7 @@ int totalTickets(void)
   struct proc *p;
   int numOfTickets = 0;
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    if(p->state == RUNNABLE){
+    if(p->state == RUNNABLE && p->queue == 1){
       numOfTickets += p->tickets;
     }
   }
@@ -449,6 +466,18 @@ void find_and_set_lottery_ticket(uint lotteryTickets, int pid){
   }
 }
 
+void find_and_set_SRPF_priority(int priority, int pid)
+{
+  struct proc *p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(pid == p->pid)
+    {
+      p->priority = (float)priority;
+      break;
+    }
+  }
+}
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -459,13 +488,13 @@ void find_and_set_lottery_ticket(uint lotteryTickets, int pid){
 //      via swtch back to the scheduler.
 
 void
-changeQueue(int priority, int pid)
+changeQueue(int queue, int pid)
 {
   struct proc *p;
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(pid == p->pid ) {
-        p->queue = priority;
+        p->queue = queue;
         break;
     }
   }
@@ -511,7 +540,7 @@ lotteryScheduler(void)
   struct proc *p;
   struct proc *luckyProcess = 0;
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-    if (p->state != RUNNABLE)
+    if (p->state != RUNNABLE || p->queue != 1)
       continue;
     if ((counter + p->tickets) < randomTicket){
       counter += p->tickets;
@@ -525,7 +554,39 @@ lotteryScheduler(void)
     }
   }
   return luckyProcess;
+}
 
+struct proc*
+SRPFScheduler(void)
+{
+  uint t = ticks;
+  struct proc *p; 
+  int priorityProcessSelected = 0;
+  struct proc *highPriority = 0;
+  
+  priorityProcessSelected = 0;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state != RUNNABLE || p->queue != 3) //TODO: Add p->queue != 3
+      continue;
+
+    if(!priorityProcessSelected)
+    {
+      highPriority = p;
+      priorityProcessSelected = 1;
+    }
+    if(highPriority->priority > p->priority )
+      highPriority = p;
+    else if (highPriority->priority == p->priority)
+    {
+      if (t % 2 == 0)
+        highPriority = p;
+    }
+  }
+  if(priorityProcessSelected )
+  {
+    return highPriority;
+  }
+  return 0;
 }
 
 void
@@ -541,12 +602,13 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    // 
-    // if (p == 0)
+
     p = lotteryScheduler();
 
     if (p == 0)
-      p = HRRNScheduler();  
+      p = HRRNScheduler(); 
+    if (p == 0)
+      p = SRPFScheduler(); 
     
     // for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     //   if(p->state != RUNNABLE)
@@ -561,6 +623,9 @@ scheduler(void)
       p->state = RUNNING;
 
       p->execCycles++;
+
+      if (p->priority > 0)
+        p->priority -= 0.1;
 
       swtch(&(c->scheduler), p->context);
       switchkvm();

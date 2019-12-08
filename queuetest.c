@@ -19,7 +19,7 @@ main(int argc, char *argv[])
       printf(2, "Invalid priority (0-20)!\n" );
       exit();
   }
-  setPriority(priority, pid);
+  setQueue(priority, pid);
     printprocs();
   exit();
 }
