@@ -565,33 +565,25 @@ struct proc*
 SRPFScheduler(void)
 {
   uint t = ticks;
-  struct proc *p; 
-  int priorityProcessSelected = 0;
-  struct proc *highPriority = 0;
-  
-  priorityProcessSelected = 0;
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    if(p->state != RUNNABLE || p->queue != 3)
-      continue;
-
-    if(!priorityProcessSelected)
-    {
-      highPriority = p;
-      priorityProcessSelected = 1;
-    }
-    if(highPriority->priority > p->priority )
-      highPriority = p;
-    else if (highPriority->priority == p->priority)
-    {
-      if (t % 2 == 0)
-        highPriority = p;
-    }
-  }
-  if(priorityProcessSelected )
+  int selected = 0;
+  struct proc *p;
+  struct proc *selected_proc = 0;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
   {
-    return highPriority;
+    if(p->state != RUNNABLE || p->queue != 3) 
+      continue;
+    else if(!selected) {
+      selected_proc = p;
+      selected = 1;
+    }
+
+    if(selected_proc->priority > p->priority ) 
+      selected_proc = p;
+    else if (selected_proc->priority == p->priority)
+      if (t % 2 == 0)
+        selected_proc = p;
   }
-  return 0;
+  return selected_proc;
 }
 
 void
