@@ -16,8 +16,7 @@ main()
             pid = fork();
             if(pid > 0)
             {
-            // set_sched_queue(PRIORITY, pid);
-            // set_priority(10-i, pid);
+                //do nothing
             }
             if(pid == 0 )
                 break;
@@ -25,11 +24,7 @@ main()
         }
     }
        
-    if(pid < 0)
-    {
-        printf(2, "fork error\n");
-    }
-    else if(pid == 0)
+    if(pid == 0)
     {
         int i;
         int j = 0;
@@ -37,16 +32,12 @@ main()
         {
             j = j+1;
         }
-        
-        //printf(1, "%d\n", ownPid);
-
     }
     else
     {
         int i;
         for(i = 0; i < 10; i++)
             wait();
-        printf(1, "Main user program finished pid %d\n", getpid());
     }
   exit();
 }
