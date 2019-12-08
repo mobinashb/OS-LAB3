@@ -24,11 +24,12 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int sleepsec(int);
+//sched
 int gettime(void);
-
 int intSize(int i);
 int printprocs(void);
 int inittickets(int num, int pid);
+int set_priority(int p, int pid);
 int setQueue(int num, int pid);
 int set_priority(int p, int pid);
 

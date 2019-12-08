@@ -7,9 +7,7 @@ int main(int argc, char const *argv[])
 {
     set_priority(0, getpid());
     int pid = getpid();
-    int i;
-
-    for(i = 1; i < 7; i++)
+    for(int i = 1; i < 7; i++)
     {
         pid = fork();
         if(pid > 0)
@@ -38,3 +36,4 @@ int main(int argc, char const *argv[])
     }
     return 0;
 }
+

@@ -37,6 +37,7 @@ void lotteryScheduling() {
                 wait();
                 wait();
                 printf(1, "pid %d exited ** ", getpid());
+                printf(1, "pid %d exited\n", getpid());
                 exit();
             }
             else {
