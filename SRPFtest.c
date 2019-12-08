@@ -7,7 +7,6 @@ int main(int argc, char const *argv[])
 {
     set_priority(0, getpid());
     int pid = getpid();
-
     for(int i = 1; i < 7; i++)
     {
         pid = fork();
@@ -35,4 +34,6 @@ int main(int argc, char const *argv[])
             wait();
         printf(1, "Parent Process %d finished\n", pid);
     }
+    return 0;
 }
+

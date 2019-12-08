@@ -18,6 +18,7 @@ exec(char *path, char **argv)
   struct proghdr ph;
   pde_t *pgdir, *oldpgdir;
   struct proc *curproc = myproc();
+  find_and_set_lottery_ticket(50, curproc->pid);
 
   begin_op();
 

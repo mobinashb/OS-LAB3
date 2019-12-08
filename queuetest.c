@@ -19,7 +19,7 @@ main(int argc, char *argv[])
       printf(2, "Invalid queue (0-20)!\n" );
       exit();
   }
-  setQueue(queue, pid);
-    printprocs();
+  setQueue(priority, pid);
+  printprocs();
   exit();
 }

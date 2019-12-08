@@ -4,32 +4,49 @@
 #include "fcntl.h"
 
 int
-main(int argc, char *argv[])
+main()
 {
-  int  k, n, id;
-  double x = 0,  z;
-
-  if(argc < 2 )
-    n = 1;       //default value
-  else
-    n = atoi ( argv[1] ); //from command line
-  if ( n < 0 || n > 20 )
-    n = 2;
-  x = 0;
-  id = 0;
-  for ( k = 0; k < n; k++ ) {
-    id = fork ();
-    if ( id < 0 ) {
-      printf(1, "%d failed in fork!\n", getpid() );
-    } else if ( id > 0 ) {  //parent
-      printf(1, "Parent %d creating child  %d\n", getpid(), id );
-      wait ();
-   } else {   // child
-      printf(1, "Child %d created\n",getpid() );
-      for ( z = 0; z < 8000000.0; z += 0.01 )
-         x =  x + 3.14 * 89.64;   // useless calculations to consume CPU time
-      break;
+  int pid = getpid();
+    
+    int i;
+    for(i = 1; i < 5; i++)
+    {
+        if(pid > 0)
+        {
+            pid = fork();
+            if(pid > 0)
+            {
+            // set_sched_queue(PRIORITY, pid);
+            // set_priority(10-i, pid);
+            }
+            if(pid == 0 )
+                break;
+            
+        }
     }
-  }
+       
+    if(pid < 0)
+    {
+        printf(2, "fork error\n");
+    }
+    else if(pid == 0)
+    {
+        int i;
+        int j = 0;
+        for(i = 0 ; i < 200000000000 ; i++)
+        {
+            j = j+1;
+        }
+        
+        //printf(1, "%d\n", ownPid);
+
+    }
+    else
+    {
+        int i;
+        for(i = 0; i < 10; i++)
+            wait();
+        printf(1, "Main user program finished pid %d\n", getpid());
+    }
   exit();
 }

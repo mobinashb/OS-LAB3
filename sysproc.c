@@ -138,10 +138,10 @@ sys_inittickets(void)
 void
 sys_setQueue (void)
 {
-  int pid, priority;
-  argint(0, &priority);
+  int pid, queue;
+  argint(0, &queue);
   argint(1, &pid);
-  changeQueue(priority, pid);
+  changeQueue(queue, pid);
 }
 
 void 
