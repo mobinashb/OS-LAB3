@@ -571,40 +571,7 @@ SRPFScheduler(void)
   
   priorityProcessSelected = 0;
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    if(p->state != RUNNABLE || p->queue != 3) //TODO: Add p->queue != 3
-      continue;
-
-    if(!priorityProcessSelected)
-    {
-      highPriority = p;
-      priorityProcessSelected = 1;
-    }
-    if(highPriority->priority > p->priority )
-      highPriority = p;
-    else if (highPriority->priority == p->priority)
-    {
-      if (t % 2 == 0)
-        highPriority = p;
-    }
-  }
-  if(priorityProcessSelected )
-  {
-    return highPriority;
-  }
-  return 0;
-}
-
-struct proc*
-SRPFScheduler(void)
-{
-  uint t = ticks;
-  struct proc *p; 
-  int priorityProcessSelected = 0;
-  struct proc *highPriority = 0;
-  
-  priorityProcessSelected = 0;
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    if(p->state != RUNNABLE) //TODO: Add p->queue != 3
+    if(p->state != RUNNABLE || p->queue != 3)
       continue;
 
     if(!priorityProcessSelected)
@@ -658,7 +625,7 @@ scheduler(void)
       p->execCycles++;
 
       //SRPF
-      if (p->priority > 0)
+      if (p->priority > 0 && p->queue == 3)
         p->priority -= 0.1;
 
       swtch(&(c->scheduler), p->context);
